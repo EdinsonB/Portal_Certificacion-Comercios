@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal de Certificación PSE</title>
+  
+  <!-- Hojas de estilo -->
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Librerías para exportar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <!-- Layout principal -->
+  <div class="main-layout">
+    
+    <!-- Sidebar de navegación rediseñado -->
+    <nav class="sidebar sidebar-modern" id="sidebar">
+      <div class="sidebar-header">
+        <h3 class="sidebar-title">
+          <svg class="sidebar-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
+          Puntos de Validación
+        </h3>
+        <div class="sidebar-controls">
+          <button class="sidebar-compact-toggle" id="sidebarCompact" title="Modo compacto">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3,3H21V5H3V3M3,7H21V9H3V7M3,11H21V13H3V11M3,15H21V17H3V15M3,19H21V21H3V19Z"/>
+            </svg>
+          </button>
+          <button class="sidebar-toggle" id="sidebarMuesca" title="Contraer panel">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12Z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="sidebar-content" id="sidebarContent">
+        <div class="sidebar-menu" id="sidebarMenu"></div>
+      </div>
+    </nav>
+    
+    <!-- Botón flotante para mostrar sidebar cuando está contraído -->
+    <div class="sidebar-fab" id="sidebarFab" title="Expandir puntos de validación" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+      </svg>
+    </div>
+
+    <!-- Botón flotante discreto para limpiar evidencias -->
+    <div class="clean-fab" id="cleanFab" title="Limpiar evidencias" onclick="limpiarEvidencias()" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
+      </svg>
+    </div>
+    
+    <!-- Contenido principal -->
+    <div class="container">
+      <!-- Página de bienvenida -->
+      <div id="welcomePage" class="welcome-page">
+        
+        <!-- Sección principal de acción -->
+        <main class="main-content">
+          <div class="content-wrapper">
+            
+            <!-- Header integrado con diseño cálido -->
+            <div class="integrated-header">
+              <div class="header-brands">
+                <div class="pse-section">
+                  <img src="img/PSE.png" alt="PSE Logo" class="pse-logo">
+                  <div class="brand-text">
+                    <h1 class="main-title">Portal de Certificación</h1>
+                    <h2 class="sub-title">Comercios PSE</h2>
+                    <p class="tagline">Sistema de validación para consumo de servicios</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Card principal -->
+            <div class="primary-card">
+              <div class="card-header">
+                <div class="icon-wrapper-simple">
+                  <img src="img/store.png" alt="Store Icon" class="store-icon">
+                </div>
+                <div class="card-title-section">
+                  <h3 class="card-title">Gestión de Certificación</h3>
+                  <p class="card-subtitle">Valide o cree una nueva certificación para comercios PSE</p>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <div class="input-section">
+                  <label for="searchClientInput" class="input-label">
+                    NIT del Comercio
+                    <span class="required-indicator">*</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <input 
+                      type="text" 
+                      id="searchClientInput" 
+                      class="nit-input"
+                      placeholder="NIT con dígito de chequeo" 
+                      maxlength="10"
+                      autocomplete="off"
+                    >
+                    <div class="input-hint">Debe contener exactamente 10 dígitos</div>
+                  </div>
+                </div>
+
+                <div class="action-section">
+                  <div class="button-grid">
+                    <button type="button" id="searchBtn" class="btn btn-primary">
+                      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                      </svg>
+                      <span>Buscar</span>
+                    </button>
+                    
+                    <button type="button" id="createBtn" class="btn btn-secondary">
+                      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                      </svg>
+                      <span>Nueva Certificación</span>
+                    </button>
+                  </div>
+                  
+                  <div id="searchMessage" class="message-area"></div>
+                  
+                  <!-- Mensaje informativo -->
+                  <div class="info-message">
+                    <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="16" x2="12" y2="12"></line>
+                      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <span>Todos los avances se guardan automáticamente en su navegador</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </main>
+
+        <!-- Logo ACH en footer -->
+        <footer class="ach-footer">
+          <div class="ach-section">
+            <span class="powered-by">powered by</span>
+            <img src="img/ACH.png" alt="ACH Colombia" class="ach-logo">
+          </div>
+        </footer>
+
+      </div>
+
+      <!-- Modal de creación de cliente -->
+      <div id="createClientModal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>🏪 Crear Nuevo Comercio</h3>
+            <button type="button" id="closeModalBtn" class="close-btn">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="clientNit">NIT del Comercio:</label>
+              <input type="text" id="clientNit" placeholder="NIT con dígito de chequeo" maxlength="10" readonly>
+            </div>
+            <div class="form-group">
+              <label for="clientName">Nombre del Comercio:</label>
+              <input type="text" id="clientName" placeholder="Nombre completo del comercio" maxlength="100">
+            </div>
+            <div class="form-group">
+              <label for="certificationType">Tipo de Certificación:</label>
+              <select id="certificationType">
+                <option value="">Seleccione el tipo de certificación</option>
+                <option value="pse-basico">PSE Básico - Certificación estándar</option>
+                <option value="pse-avanzado">PSE Avanzado - Certificación completa</option>
+                <option value="pse-empresarial">PSE Empresarial - Certificación corporativa</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="cancelCreateBtn" class="btn-cancel">Cancelar</button>
+            <button type="button" id="confirmCreateBtn" class="btn-confirm">Crear Certificación</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Página del checklist rediseñada con mejor UX -->
+      <div id="checklistPage" class="certification-page" style="display: none;">
+        
+        <!-- Header y progreso en línea horizontal -->
+        <div class="certification-info-bar">
+          <!-- Logo PSE alineado a la izquierda -->
+          <div class="pse-logo-container">
+            <img src="img/PSE.png" alt="PSE Logo" class="pse-logo">
+          </div>
+          
+          <!-- Información del cliente compacta (centro) -->
+          <div class="client-info-compact">
+            <div class="client-main-info">
+              <div class="client-identity">
+                <h2 class="client-name" id="currentClientName">-</h2>
+                <span class="client-nit">NIT: <span id="currentClientNumber">-</span></span>
+              </div>
+              <div class="client-certification">
+                <div class="certification-badge" id="currentCertificationType">-</div>
+              </div>
+            </div>
+            
+            <!-- Menú de opciones del cliente - REMOVIDO -->
+          </div>
+          
+          <!-- Progreso con exportación (mitad derecha) -->
+          <div class="progress-info-compact">
+            <div class="progress-header">
+              <button type="button" class="btn-export-chart" onclick="exportarGraficoProgreso()" title="Exportar gráfico de progreso">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                </svg>
+              </button>
+              <div class="progress-stats-inline">
+                <div class="stat-item-inline">
+                  <span class="stat-number" id="completedItems">0</span>
+                  <span class="stat-label">Completados</span>
+                </div>
+                <div class="stat-item-inline">
+                  <span class="stat-number" id="totalItems">0</span>
+                  <span class="stat-label">Total</span>
+                </div>
+                <div class="stat-item-inline">
+                  <span class="stat-number" id="progressPercentage">0%</span>
+                  <span class="stat-label">Progreso</span>
+                </div>
+              </div>
+            </div>
+            <div class="progress-bar-inline">
+              <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Formulario principal -->
+        <form id="checklistForm" autocomplete="off">
+          <div class="checklist-container">
+            <div id="checklist"></div>
+          </div>
+          
+          <!-- Paginación moderna -->
+          <div class="pagination-modern" id="pagination"></div>
+          
+          <!-- Mensajes del formulario -->
+          <div id="formMsg" class="form-message"></div>
+          
+          <!-- Panel de acciones reorganizado según propuesta -->
+          <div class="action-panel">
+            <!-- Grupo izquierdo: Volver -->
+            <div class="action-left">
+              <button type="button" id="backToWelcomeBtn2" class="btn-action btn-secondary btn-compact">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20 11H7.83L13.42 5.41L12 4L4 12L12 20L13.41 18.59L7.83 13H20V11Z"/>
+                </svg>
+                Volver
+              </button>
+            </div>
+            
+            <!-- Grupo central: Guardar + Exportar PDF -->
+            <div class="action-center">
+              <button type="button" class="btn-action btn-primary" onclick="guardarCambios()">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/>
+                </svg>
+                Guardar
+              </button>
+              
+              <button type="button" class="btn-action btn-success" onclick="exportarPDF()">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                </svg>
+                Exportar PDF
+              </button>
+            </div>
+            
+            <!-- Grupo derecho: Cerrar certificación -->
+            <div class="action-right">
+              <button type="button" class="btn-action btn-finish" onclick="finalizarCertificacion()" title="Cerrar certificación">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                  <path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts de la aplicación -->
+  <script src="pdf-export.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
